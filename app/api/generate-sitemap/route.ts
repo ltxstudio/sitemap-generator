@@ -13,7 +13,8 @@ export async function POST(req: Request) {
     return new Response(sitemap, {
       headers: { "Content-Type": "application/xml" },
     });
-  } catch (error) {
+  } catch {
+    // Handle the error without using the error variable
     return NextResponse.json(
       { error: "Failed to generate sitemap" },
       { status: 500 }
