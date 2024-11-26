@@ -28,8 +28,12 @@ export default function SitemapForm() {
 
       const sitemapText = await response.text();
       setSitemap(sitemapText);
-    } catch (error) {
-      console.error(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message); // Safely access 'message' property
+      } else {
+        console.error("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }
