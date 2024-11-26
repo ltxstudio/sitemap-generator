@@ -36,8 +36,12 @@ export async function generateSitemap(url: string, settings: Settings = {}) {
       });
 
       visited.add(currentUrl);
-    } catch (error) {
-      console.error(`Failed to fetch ${currentUrl}:`, error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(`Failed to fetch ${currentUrl}:`, error.message);
+      } else {
+        console.error(`Failed to fetch ${currentUrl}: Unknown error`);
+      }
     }
   }
 
