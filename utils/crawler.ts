@@ -1,10 +1,11 @@
 import axios from "axios";
-import cheerio from "cheerio";
+import { load } from "cheerio";
 import { create } from "xmlbuilder2";
 
 interface Settings {
   includeLastmod?: boolean;
-  priority?: number;
+  changefreq?: string;
+  excludeUrls?: string[];
 }
 
 export async function generateSitemap(url: string, settings: Settings = {}) {
@@ -18,13 +19,17 @@ export async function generateSitemap(url: string, settings: Settings = {}) {
 
     try {
       const { data } = await axios.get(currentUrl);
-      const $ = cheerio.load(data);
+      const $ = load(data);
 
       $("a[href]").each((_, element) => {
         const link = $(element).attr("href");
         if (link) {
           const absoluteLink = new URL(link, baseUrl).href;
-          if (absoluteLink.startsWith(baseUrl) && !visited.has(absoluteLink)) {
+          if (
+            absoluteLink.startsWith(baseUrl) &&
+            !visited.has(absoluteLink) &&
+            !settings.excludeUrls?.includes(absoluteLink)
+          ) {
             toVisit.push(absoluteLink);
           }
         }
@@ -45,8 +50,8 @@ export async function generateSitemap(url: string, settings: Settings = {}) {
     if (settings.includeLastmod) {
       urlNode.ele("lastmod").txt(new Date().toISOString()).up();
     }
-    if (settings.priority) {
-      urlNode.ele("priority").txt(settings.priority.toFixed(1)).up();
+    if (settings.changefreq) {
+      urlNode.ele("changefreq").txt(settings.changefreq).up();
     }
   });
 
